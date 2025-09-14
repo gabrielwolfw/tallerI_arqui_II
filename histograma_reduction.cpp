@@ -5,6 +5,7 @@
 #include <iterator>
 #include <thread>
 #include <chrono>
+#include <fstream>
 #include "generator.h"
 
 std::vector<int> parallel_histogram_private(
@@ -82,6 +83,16 @@ int main(){
 
     std::chrono::duration<double> duration = end - start;
     std::cout << "Tiempo de ejecución: " << duration.count() << " segundos." << std::endl;
+
+    
+    std::ofstream out("resultados.csv", std::ios::app); // 'app' para agregar, no sobrescribir
+
+    if (out.tellp() == 0) // Si el archivo está vacío, escribe el encabezado
+        out << "variante,hilos,tiempo,total\n";
+
+    out << "mutex" << "," << user_input << "," << duration.count() << "," << total << "\n";
+
+    out.close();
     
     return 0;
 }

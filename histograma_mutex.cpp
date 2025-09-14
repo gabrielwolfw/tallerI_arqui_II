@@ -4,7 +4,9 @@
 #include <random>
 #include <mutex>
 #include <chrono>
+#include <fstream>
 #include "generator.h"
+
 
 
 // Histograma global protegido con mutex
@@ -48,14 +50,17 @@ int main() {
     int seed = 42;
 
     std::cout << "Cantidad de vectores: " << number_size << std::endl;
-    int total_number_threads = std::thread::hardware_concurrency();
+
     int user_input;
+
+    int num_threads = std::thread::hardware_concurrency();
+    std::cout << "Numero de hilos disponibles en el sistema: " << num_threads << std::endl;
 
     std::cout << "Numero de hilos: ";
     std::cin >> user_input;
-    if (user_input < 1 || user_input > 16) {
-        std::cerr << "Número de hilos no válido. Usando el valor por defecto de " << total_number_threads << " hilos." << std::endl;
-        user_input = total_number_threads;
+    if (user_input < 1 || user_input > num_threads) {
+        std::cerr << "Número de hilos no válido. Usando el valor por defecto de " << num_threads << " hilos." << std::endl;
+        user_input = num_threads;
     }
 
     auto data = generate_number_random_private(number_size, min_val, max_val, seed, user_input);
@@ -73,6 +78,15 @@ int main() {
 
     std::chrono::duration<double> duration = end - start;
     std::cout << "Tiempo de ejecución: " << duration.count() << " segundos." << std::endl;
+
+    std::ofstream out("resultados.csv", std::ios::app); // 'app' para agregar, no sobrescribir
+
+    if (out.tellp() == 0) // Si el archivo está vacío, escribe el encabezado
+        out << "variante,hilos,tiempo,total\n";
+
+    out << "mutex" << "," << user_input << "," << duration.count() << "," << total << "\n";
+
+    out.close();
 
     return 0;
 }
