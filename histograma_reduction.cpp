@@ -8,12 +8,13 @@
 #include <fstream>
 #include "generator.h"
 
-std::vector<int> parallel_histogram_private(
+std::vector<int> histogram_reduction(
     const std::vector<int>& data,
     int min_val,
-    int max_val) 
+    int max_val,
+    int num_threads) 
 {
-    int num_threads = std::thread::hardware_concurrency();
+    if (num_threads < 1) num_threads = std::thread::hardware_concurrency();
     if (num_threads == 0) num_threads = 4;
     size_t chunk_size = data.size() / num_threads;
     int num_bins = max_val - min_val + 1;
@@ -45,54 +46,44 @@ std::vector<int> parallel_histogram_private(
     return global_histogram;
 }
 
-int main(){
-    
-    // Configuration values
+int main(int argc, char* argv[]) {
+    // Configuración
     long int number_size = 100000000;
     int min_val = 1;
     int max_val = 1000;
     int seed = 42;
 
-
-    // System and configuration information
+    // Información del sistema
     std::cout << "Cantidad de vectores: " << number_size << std::endl;
-    int total_number_threads = std::thread::hardware_concurrency();
-    int user_input;
+    int max_threads = std::thread::hardware_concurrency();
+    int num_threads = max_threads; // Valor por defecto
 
-    std::cout << "Numero de hilos: ";
-    std::cin >> user_input;
-    if (user_input < 1 || user_input > 16) {
-        std::cerr << "Número de hilos no válido. Usando el valor por defecto de " << total_number_threads << " hilos." << std::endl;
-        user_input = total_number_threads;
+    // Lee el número de hilos del argumento de línea de comandos
+    if (argc > 1) {
+        int arg_threads = std::atoi(argv[1]);
+        if (arg_threads >= 1 && arg_threads <= max_threads) {
+            num_threads = arg_threads;
+        } else {
+            std::cerr << "Número de hilos no válido. Usando el valor por defecto de " << max_threads << " hilos." << std::endl;
+        }
     }
 
+    std::cout << "Numero de hilos disponibles en el sistema: " << max_threads << std::endl;
+    std::cout << "Numero de hilos utilizados: " << num_threads << std::endl;
 
-    auto data = generate_number_random_private(number_size, min_val, max_val, seed, user_input);
+    auto data = generate_number_random_private(number_size, min_val, max_val, seed, num_threads);
     auto start = std::chrono::high_resolution_clock::now();
-    auto histogram = parallel_histogram_private(data, min_val, max_val);
+    auto histogram = histogram_reduction(data, min_val, max_val, num_threads);
     auto end = std::chrono::high_resolution_clock::now();
-
-
 
     for (int i = 0; i < 10 && i < histogram.size(); ++i)
         std::cout << "Bin " << i + min_val << ": " << histogram[i] << "\n";
-    
-        long total = 0;
+
+    long total = 0;
     for (int bin : histogram) total += bin;
     std::cout << "Total elementos en el histograma: " << total << std::endl;
 
     std::chrono::duration<double> duration = end - start;
     std::cout << "Tiempo de ejecución: " << duration.count() << " segundos." << std::endl;
-
-    
-    std::ofstream out("resultados.csv", std::ios::app); // 'app' para agregar, no sobrescribir
-
-    if (out.tellp() == 0) // Si el archivo está vacío, escribe el encabezado
-        out << "variante,hilos,tiempo,total\n";
-
-    out << "mutex" << "," << user_input << "," << duration.count() << "," << total << "\n";
-
-    out.close();
-    
     return 0;
 }

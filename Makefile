@@ -8,11 +8,11 @@ mutex: histograma_mutex.cpp generator.cpp
 
 # Ejecuta el histograma con reducción
 run_reduction: reduction
-	./histograma_reduction
+	./histograma_reduction $h
 
 # Ejecuta el histograma con mutex
 run_mutex: mutex
-	./histograma_mutex
+	./histograma_mutex $h
 
 # Limpia los ejecutables
 clean:
