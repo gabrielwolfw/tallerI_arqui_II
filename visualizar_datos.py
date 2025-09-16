@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 # Lee los datos
 df_mutex = pd.read_csv("resultados_perf_mutex.csv")
 df_reduction = pd.read_csv("resultados_perf_reduction.csv")
+df_atomic = pd.read_csv("resultados_perf_atomic.csv")
 
 # Junta y ordena los datos
-df = pd.concat([df_mutex, df_reduction], ignore_index=True)
+df = pd.concat([df_mutex, df_reduction, df_atomic], ignore_index=True)
 df = df.sort_values(['variante', 'hilos'])
 
 # Calcula speedup y eficiencia
@@ -16,8 +17,8 @@ for variante in df['variante'].unique():
     df.loc[df['variante'] == variante, 'eficiencia'] = df.loc[df['variante'] == variante, 'speedup'] / df.loc[df['variante'] == variante, 'hilos']
 
 # Define colores y estilos para cada variante
-colores = {'mutex': 'royalblue', 'reduction': 'darkorange'}
-marcadores = {'mutex': 'o', 'reduction': 's'}
+colores = {'mutex': 'royalblue', 'reduction': 'darkorange', 'atomic': 'forestgreen'}
+marcadores = {'mutex': 'o', 'reduction': 's', 'atomic': '^'}
 
 fig, axs = plt.subplots(1, 3, figsize=(18, 6))
 
