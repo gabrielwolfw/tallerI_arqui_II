@@ -31,6 +31,13 @@ make run_atomic
 ```
 
 Estos comandos ejecutan los programas con la máxima concurrencia detectada por el sistema.
+Si deseas especificar explícitamente la cantidad de hilos a utilizar en cada variante, simplemente indica el número de hilos como argumento después del comando correspondiente. Por ejemplo:
+
+```bash
+make run_reduction 16 
+make run_mutex 2
+make run_atomic 1
+```
 
 ---
 
@@ -43,6 +50,7 @@ chmod +x perf_reduction.sh
 chmod +x perf_mutex.sh
 chmod +x perf_atomic.sh
 ```
+Antes de la ejecución de los scripts, es necesario que lea las recomendaciones al final. Debido a que es posible que necesite brindar permisos a perf para la obtención de datos.
 
 Luego ejecute cada script:
 
@@ -52,8 +60,9 @@ Luego ejecute cada script:
 ./perf_atomic.sh
 ```
 
-Estos scripts realizarán las pruebas con diferentes cantidades de hilos y guardarán los resultados en archivos CSV (`resultados_perf_reduction.csv` y `resultados_perf_mutex.csv`), utilizando la herramienta **perf** para recolectar métricas como tiempo, ciclos, instrucciones y fallos de caché.
+Estos scripts realizarán las pruebas con diferentes cantidades de hilos y guardarán los resultados en archivos CSV (`resultados_perf_reduction.csv`, `resultados_perf_mutex.csv`y `resultados_perf_atomic.csv`), utilizando la herramienta **perf** para recolectar métricas como ciclos, instrucciones y fallos de caché.
 
+Para la recolección de los tiempo de ejecución se utilizó std::chrono.
 ---
 
 ## Visualización de datos

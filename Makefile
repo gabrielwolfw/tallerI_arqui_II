@@ -1,6 +1,6 @@
 # Compila el histograma con reducción
 reduction: histograma_reduction.cpp generator.cpp
-	g++ histograma_reduction.cpp generator.cpp -o histograma_reduction
+	g++ histograma_reduction.cpp generator.cpp -o histograma_reduction -fopenmp
 
 # Compila el histograma con mutex
 mutex: histograma_mutex.cpp generator.cpp
@@ -12,15 +12,22 @@ atomic: histograma_atomic.cpp generator.cpp
 
 # Ejecuta el histograma con reducción
 run_reduction: reduction
-	./histograma_reduction $h
+	./histograma_reduction $(arg)
 
 # Ejecuta el histograma con mutex
 run_mutex: mutex
-	./histograma_mutex $h
+	./histograma_mutex $(arg)
 
 # Ejecuta el histograma con atómicos
 run_atomic: atomic
-	./histograma_atomic $h
+	./histograma_atomic $(arg)
+
+# Argumento posicional (número de hilos)
+arg = $(word 2, $(MAKECMDGOALS))
+
+# Evita error si pones "make run_reduction 8"
+%:
+	@:
 
 # Limpia los ejecutables
 clean:
